@@ -14,11 +14,14 @@ const create = (baseURL = 'https://api.github.com/') => {
     baseURL,
     // here are some default headers
     headers: {
-      'Cache-Control': 'no-cache'
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache',
     },
     // 10 second timeout...
-    timeout: 10000
+    timeout: 10000,
   })
+
+  // api.setHeader('Content-Type', 'application/json')
 
   // ------
   // STEP 2
@@ -34,9 +37,15 @@ const create = (baseURL = 'https://api.github.com/') => {
   // Since we can't hide from that, we embrace it by getting out of the
   // way at this level.
   //
-  const getRoot = () => api.get('')
-  const getRate = () => api.get('rate_limit')
-  const getUser = (username) => api.get('search/users', {q: username})
+  const typeJSON = () => api.setHeader('Content-Type', 'application/json')
+  const typeFormData = () => api.setHeader('Content-Type', 'multipart/form-data')
+  const setAuthToken = token => api.setHeader('Authorization', `Bearer ${token}`)
+  const removeAuthToken = () => api.deleteHeader('x-access-token')
+  const setGrantToken = grantToken => api.setHeader('Authorization', grantToken)
+  const removeGrantToken = () => api.deleteHeader('Authorization')
+
+  const login = ({username, password}) =>
+    api.post('https://postman-echo.com/basic-auth', {username, password})
 
   // ------
   // STEP 3
@@ -52,13 +61,22 @@ const create = (baseURL = 'https://api.github.com/') => {
   //
   return {
     // a list of the API functions from step 2
-    getRoot,
-    getRate,
-    getUser
+    typeJSON,
+    typeFormData,
+    setAuthToken,
+    removeAuthToken,
+    setGrantToken,
+    removeGrantToken,
+    login,
   }
 }
 
 // let's return back our create method as the default.
 export default {
-  create
+  create,
+}
+
+export const headerWithGrant = obj => {
+  create().setGrantToken()
+  return obj
 }
