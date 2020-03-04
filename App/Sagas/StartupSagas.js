@@ -1,16 +1,18 @@
 /* eslint-disable import/prefer-default-export */
 /* eslint-disable no-console */
-import {put, select, delay} from 'redux-saga/effects'
+import {put, select, delay, call} from 'redux-saga/effects'
 import {navigate} from '../Services/Navigation'
 import StartupActions from '../Redux/StartupRedux'
 // exported to make available for tests
 
 // process STARTUP actions
-export function* startup(action) {
+export function* startup(api, action) {
   yield delay(500)
-  const {startPage, token} = yield select()
+  const {startPage} = yield select()
 
-  if (token.data !== null) {
+  const response = yield call(api.checkLogin)
+
+  if (response.authenticated) {
     yield put(navigate('MainStack'))
   } else if (startPage.data) {
     yield put(navigate('AuthStack'))

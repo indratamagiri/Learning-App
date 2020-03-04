@@ -2,7 +2,7 @@
 import apisauce from 'apisauce'
 
 // our "constructor"
-const create = (baseURL = 'https://api.github.com/') => {
+const create = baseURL => {
   // ------
   // STEP 1
   // ------
@@ -21,6 +21,17 @@ const create = (baseURL = 'https://api.github.com/') => {
     timeout: 10000,
   })
 
+  const apiLogin = apisauce.create({
+    // base URL is read from the "constructor"
+    baseURL: 'https://postman-echo.com/basic-auth',
+    // here are some default headers
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'no-cache',
+    },
+    // 10 second timeout...
+    timeout: 10000,
+  })
   // api.setHeader('Content-Type', 'application/json')
 
   // ------
@@ -44,8 +55,14 @@ const create = (baseURL = 'https://api.github.com/') => {
   const setGrantToken = grantToken => api.setHeader('Authorization', grantToken)
   const removeGrantToken = () => api.deleteHeader('Authorization')
 
-  const login = ({username, password}) =>
-    api.post('https://postman-echo.com/basic-auth', {username, password})
+  const login = hash => {
+    apiLogin.setHeaders({
+      Authorization: `Basic ${hash}`,
+    })
+    return apiLogin.get('/')
+  }
+
+  const checkLogin = () => apiLogin.get('/')
 
   // ------
   // STEP 3
@@ -68,15 +85,11 @@ const create = (baseURL = 'https://api.github.com/') => {
     setGrantToken,
     removeGrantToken,
     login,
+    checkLogin,
   }
 }
 
 // let's return back our create method as the default.
 export default {
   create,
-}
-
-export const headerWithGrant = obj => {
-  create().setGrantToken()
-  return obj
 }

@@ -12,6 +12,8 @@
  ************************************************************ */
 
 import {call, put} from 'redux-saga/effects'
+import {Buffer} from 'buffer'
+import {ToastAndroid} from 'react-native'
 import LoginActions from '../Redux/LoginRedux'
 import {navigate} from '../Services/Navigation'
 import Token from '../Redux/TokenRedux'
@@ -22,9 +24,8 @@ export function* getLogin(api, action) {
   // get current data from Store
   // const currentData = yield select(LoginSelectors.getData)
   // make the call to the api
-  const response = yield call(api.login, data)
-
-  console.tron.log(response)
+  const hash = new Buffer(`${data.username}:${data.password}`).toString('base64')
+  const response = yield call(api.login, hash)
 
   // success?
   if (response.ok) {
@@ -34,7 +35,7 @@ export function* getLogin(api, action) {
     yield put(LoginActions.loginSuccess(response.data))
     yield put(Token.tokenData(response.data))
   } else {
-    yield put(navigate('MainStack'))
+    ToastAndroid.show('Username dan password salah', ToastAndroid.LONG)
     yield put(LoginActions.loginFailure())
   }
 }
