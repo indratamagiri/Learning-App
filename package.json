@@ -32,7 +32,7 @@
     "@react-native-community/slider": "^2.0.8",
     "@react-native-community/viewpager": "^3.3.0",
     "apisauce": "^1.1.1",
-    "axios": "0.18.1",
+    "axios": "0.21.1",
     "buffer": "^5.4.3",
     "dayjs": "^1.8.21",
     "format-json": "^1.0.3",
